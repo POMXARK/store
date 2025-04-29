@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #343a40;
+        }
+
+        .order-form {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="email"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus, select:focus {
+            border-color: #80bdff;
+            outline: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .price-display {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Заказать услугу оценки</h1>
+    <div class="order-form">
+        {{ form_start(form) }}
+        <div class="form-group">
+            <label for="order_form_service">Услуга</label>
+            {{ form_widget(form.service) }}
+        </div>
+        <div class="form-group">
+            <label for="order_form_email">Электронная почта</label>
+            {{ form_widget(form.email) }}
+        </div>
+        <div class="form-group">
+            <div class="price-display">Стоимость: <span id="price-display">0</span> руб.</div>
+        </div>
+        <div class="form-group">
+            {{ form_widget(form.submit) }}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ищем селект по id
+            const serviceSelect = document.getElementById('order_form_service');
+            const priceDisplay = document.querySelector('#price-display');
+
+            // Проверка, если элемент найден
+            if (serviceSelect) {
+                // Устанавливаем начальную стоимость
+                priceDisplay.textContent = serviceSelect.options[serviceSelect.selectedIndex].value || 0;;
+
+                serviceSelect.addEventListener('change', function() {
+                    const selectedService = serviceSelect.options[serviceSelect.selectedIndex];
+                    priceDisplay.textContent = selectedService.value; // Обновляем отображение цены
+                });
+            } else {
+                console.error('Селект для услуги не найден');
+            }
+        });
+    </script>
+{% endblock %}
+
+
