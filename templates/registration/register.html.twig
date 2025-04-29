@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+</head>
+<body>
+<div class="container">
+    <h1>Регистрация</h1>
+
+    <form action="{{ path('app_register') }}" method="post">
+        {{ form_start(registrationForm) }}
+        {{ form_widget(registrationForm) }}
+        <button type="submit">Зарегистрироваться</button>
+        {{ form_end(registrationForm) }}
+    </form>
+</div>
+
+<style>
+    /* Простейшие стили для формы */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        text-align: center;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+</body>
+</html>
