@@ -1,31 +1,41 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Order;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class OrderService
 {
-    const SERVICES =  [
-        'Оценка стоимости автомобиля' => 500,
-        'Оценка стоимости квартиры' => 300,
-        'Оценка стоимости бизнеса' => 1000,
-    ];
-
+    private array $services;
     private EntityManagerInterface $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function __construct(private readonly ContainerBagInterface $params, EntityManagerInterface $entityManager, ?string $services = null)
     {
+        // Если $services не передан, используем значение по умолчанию
+        if ($services === null) {
+            $this->services = (require $this->params->get('dictionaries'))['services'];
+        } else {
+            $this->services = require_once $services;
+        }
         $this->entityManager = $entityManager;
     }
 
-    public function createOrder(string $email, string $price): Order
+    public function createOrder(string $email, int $price): Order
     {
         $order = new Order();
         $order->setEmail($email);
-        $order->setService(array_search($price, OrderService::SERVICES));
+        $order->setService(array_search($price, $this->services));
         $order->setPrice($price);
 
         return $order;
