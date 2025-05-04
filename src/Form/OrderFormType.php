@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -11,18 +16,19 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class OrderFormType extends AbstractType
 {
+    public function __construct(private ?ContainerBagInterface $params = null)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('service', ChoiceType::class, [
-                'choices' => [
-                    'Оценка стоимости автомобиля' => 500,
-                    'Оценка стоимости квартиры' => 300,
-                    'Оценка стоимости бизнеса' => 1000,
-                ],
+                'choices' => $options['services'],
                 'placeholder' => 'Выберите услугу',
             ])
             ->add('email', EmailType::class)
@@ -49,5 +55,16 @@ class OrderFormType extends AbstractType
                     $form->get('price')->addError(new FormError('Цена не должна быть пустой.'));
                 }
             });
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'services' => $this->params ? (require $this->params->get('dictionaries'))['services'] : []
+        ]);
     }
 }

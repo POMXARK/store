@@ -1,12 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Form;
 
 use App\Form\OrderFormType;
+use PHPUnit\Framework\MockObject\Exception;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Form\Test\TypeTestCase;
 
 class OrderFormTypeTest extends TypeTestCase
 {
+    /**
+     * @throws Exception
+     */
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function testSubmitValidData()
     {
         $formData = [
@@ -15,7 +28,10 @@ class OrderFormTypeTest extends TypeTestCase
             'price' => 300, // Корректная цена
         ];
 
-        $form = $this->factory->create(OrderFormType::class);
+        // Создание формы с передачей необходимых параметров
+        $form = $this->factory->create(OrderFormType::class, null, [
+            'services' => (require dirname(__DIR__, 2) . '/config/dictionaries.php')['services']
+        ]);
 
         // Подать данные в форму
         $form->submit($formData);
@@ -50,9 +66,6 @@ class OrderFormTypeTest extends TypeTestCase
         // Проверить, что форма валидирована
         $this->assertTrue($form->isSubmitted());
         $this->assertFalse($form->isValid());
-
-        $formErrors = $form->getErrors(true, false);
-
 
         // Проверить наличие ошибок валидации
         $this->assertCount(1, $form->get('service')->getErrors());

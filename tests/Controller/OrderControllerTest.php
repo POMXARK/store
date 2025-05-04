@@ -1,16 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Controller;
 
 use App\Entity\Order;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Faker\Generator;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Faker\Factory as FakerFactory;
 
 class OrderControllerTest extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
     private User $user;
+
+    private Generator $faker;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->faker = FakerFactory::create();
+    }
 
     /**
      * При открытии формы заказа не авторизованным пользователем отображается
@@ -82,7 +94,7 @@ class OrderControllerTest extends WebTestCase
         $formData = [
             'order_form' => [
                 'service' => 500, // ID услуги
-                'email' => 'test@example.com', // Корректный email
+                'email' => $this->faker->email(), // Корректный email
                 // 'price' будет установлен автоматически
             ],
         ];
@@ -96,12 +108,12 @@ class OrderControllerTest extends WebTestCase
         // Проверяем, что заказ был создан в базе данных
         $this->entityManager->clear(); // Очищаем EntityManager, чтобы избежать кэширования
 
-        $order = $this->entityManager->getRepository(Order::class)->findOneBy(['email' => 'test@example.com']);
+        $order = $this->entityManager->getRepository(Order::class)->findOneBy(['email' => $formData['order_form']['email']]);
 
         // Проверяем, что заказ существует и его данные соответствуют ожидаемым
         $this->assertNotNull($order);
         $this->assertEquals( 'Оценка стоимости автомобиля', $order->getService()); // Проверка ID услуги
-        $this->assertEquals('test@example.com', $order->getEmail()); // Проверка email
+        $this->assertEquals($formData['order_form']['email'], $order->getEmail()); // Проверка email
         $this->assertEquals(500, $order->getPrice()); // Проверка email
     }
 }
