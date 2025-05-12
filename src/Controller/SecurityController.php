@@ -11,8 +11,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
@@ -39,19 +39,25 @@ class SecurityController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // Хешируем пароль
-            $hashedPassword = $passwordHasher->hashPassword(
-                $user,
-                $form->get('plainPassword')->getData()
-            );
-            $user->setPassword($hashedPassword);
+            // Получаем пароль из формы
+            $plainPassword = $form->get('plainPassword')->getData();
 
-            // Сохранение пользователя в базе данных
-            $entityManager->persist($user);
-            $entityManager->flush();
+            // Проверяем, что $plainPassword — это строка
+            if (is_string($plainPassword)) {
+                // Хешируем пароль
+                $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                $user->setPassword($hashedPassword);
 
-            // Перенаправление или отображение сообщения об успехе
-            return $this->redirectToRoute('order');
+                // Сохранение пользователя в базе данных
+                $entityManager->persist($user);
+                $entityManager->flush();
+
+                // Перенаправление или отображение сообщения об успехе
+                return $this->redirectToRoute('order');
+            } else {
+                // Обработка ошибки, если тип не соответствует
+                error_log('Пароль должен быть строкой.');
+            }
         }
 
         return $this->render('registration/register.html.twig', [
@@ -59,4 +65,3 @@ class SecurityController extends AbstractController
         ]);
     }
 }
-

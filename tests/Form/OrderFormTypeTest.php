@@ -30,7 +30,7 @@ class OrderFormTypeTest extends TypeTestCase
 
         // Создание формы с передачей необходимых параметров
         $form = $this->factory->create(OrderFormType::class, null, [
-            'services' => (require dirname(__DIR__, 2) . '/config/dictionaries.php')['services']
+            'services' => (require dirname(__DIR__, 2).'/config/dictionaries.php')['services'],
         ]);
 
         // Подать данные в форму
@@ -78,4 +78,3 @@ class OrderFormTypeTest extends TypeTestCase
         $this->assertSame('Цена не должна быть пустой.', $form->get('price')->getErrors()[0]->getMessage());
     }
 }
-

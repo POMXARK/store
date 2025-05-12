@@ -7,21 +7,21 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: "orders")]
+#[ORM\Table(name: 'orders')]
 class Order
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private string $email;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private string $service;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private int $price;
 
     // Getters and Setters
@@ -39,6 +39,7 @@ class Order
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -50,6 +51,7 @@ class Order
     public function setService(string $service): self
     {
         $this->service = $service;
+
         return $this;
     }
 
@@ -61,7 +63,7 @@ class Order
     public function setPrice(int $price): self
     {
         $this->price = $price;
+
         return $this;
     }
 }
-
