@@ -13,6 +13,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class OrderService
 {
+    /**
+     * @var array<string, int> // Предполагаем, что услуги имеют строковые ключи и целочисленные значения
+     */
     private array $services;
     private EntityManagerInterface $entityManager;
 
@@ -23,7 +26,7 @@ class OrderService
     public function __construct(private readonly ContainerBagInterface $params, EntityManagerInterface $entityManager, ?string $services = null)
     {
         // Если $services не передан, используем значение по умолчанию
-        if ($services === null) {
+        if (null === $services) {
             $this->services = (require $this->params->get('dictionaries'))['services'];
         } else {
             $this->services = require_once $services;
@@ -31,11 +34,21 @@ class OrderService
         $this->entityManager = $entityManager;
     }
 
+    /**
+     * @throws Exception
+     */
     public function createOrder(string $email, int $price): Order
     {
         $order = new Order();
         $order->setEmail($email);
-        $order->setService(array_search($price, $this->services));
+
+        // Используем array_search, но обрабатываем случай, когда он может вернуть false
+        $serviceKey = array_search($price, $this->services, true);
+        if (false === $serviceKey) {
+            throw new Exception('Услуга не найдена для указанной цены.');
+        }
+
+        $order->setService($serviceKey);
         $order->setPrice($price);
 
         return $order;
@@ -49,9 +62,9 @@ class OrderService
         try {
             $this->entityManager->persist($order);
             $this->entityManager->flush();
-        } catch (\Exception $e) {
-            error_log('Ошибка при сохранении заказа: ' . $e->getMessage());
-            throw $e; // Можно выбросить исключение для обработки в контроллере
+        } catch (Exception $e) {
+            error_log('Ошибка при сохранении заказа: '.$e->getMessage());
+            throw $e; // Повторно выбрасываем исключение для обработки в контроллере
         }
     }
 }

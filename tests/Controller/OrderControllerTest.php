@@ -7,9 +7,9 @@ namespace App\Tests\Controller;
 use App\Entity\Order;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Faker\Factory as FakerFactory;
 use Faker\Generator;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Faker\Factory as FakerFactory;
 
 class OrderControllerTest extends WebTestCase
 {
@@ -27,6 +27,7 @@ class OrderControllerTest extends WebTestCase
     /**
      * При открытии формы заказа не авторизованным пользователем отображается
      * страница с ошибкой.
+     *
      * @return void
      */
     public function testOrderPageForAnonymousUser()
@@ -45,7 +46,7 @@ class OrderControllerTest extends WebTestCase
     private function createUser(): void
     {
         $user = new User();
-        $user->setEmail('test_user_' . uniqid() . '@example.com'); // Уникальный email
+        $user->setEmail('test_user_'.uniqid().'@example.com'); // Уникальный email
         $user->setPassword('password'); // Установите пароль
 
         $this->entityManager->persist($user);
@@ -57,6 +58,7 @@ class OrderControllerTest extends WebTestCase
     /**
      * Авторизованному пользователю отображается форма, проверить, что вывелись все
      * поля и кнопка.
+     *
      * @return void
      */
     public function testOrderPageForAuthenticatedUser()
@@ -81,6 +83,7 @@ class OrderControllerTest extends WebTestCase
     /**
      * При отправке авторизованным пользователем формой с заполненными полями B
      * хранилище должен появиться новый заказ с данными, соответствующими форме.
+     *
      * @return void
      */
     public function testCreateOrder()
@@ -112,7 +115,7 @@ class OrderControllerTest extends WebTestCase
 
         // Проверяем, что заказ существует и его данные соответствуют ожидаемым
         $this->assertNotNull($order);
-        $this->assertEquals( 'Оценка стоимости автомобиля', $order->getService()); // Проверка ID услуги
+        $this->assertEquals('Оценка стоимости автомобиля', $order->getService()); // Проверка ID услуги
         $this->assertEquals($formData['order_form']['email'], $order->getEmail()); // Проверка email
         $this->assertEquals(500, $order->getPrice()); // Проверка email
     }

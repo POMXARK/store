@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Form\Model\OrderData;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
@@ -20,7 +21,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class OrderFormType extends AbstractType
 {
-    public function __construct(private ?ContainerBagInterface $params = null)
+    public function __construct(private readonly ?ContainerBagInterface $params = null)
     {
     }
 
@@ -37,21 +38,23 @@ class OrderFormType extends AbstractType
             ])
             ->add('submit', SubmitType::class, ['label' => 'Заказать'])
             ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+                /** @var OrderData $data */
+                $data = $event->getData();
+
                 $form = $event->getForm();
-                $data = $form->getData();
 
                 // Валидация для поля service
-                if (empty($data['service'])) {
+                if (empty($data->service)) {
                     $form->get('service')->addError(new FormError('Пожалуйста, выберите услугу.'));
                 }
 
                 // Валидация для поля email
-                if (empty($data['email'])) {
+                if (empty($data->email)) {
                     $form->get('email')->addError(new FormError('Email не должен быть пустым.'));
                 }
 
                 // Валидация для поля price
-                if (empty($data['price'])) {
+                if (empty($data->price)) {
                     $form->get('price')->addError(new FormError('Цена не должна быть пустой.'));
                 }
             });
@@ -64,7 +67,8 @@ class OrderFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'services' => $this->params ? (require $this->params->get('dictionaries'))['services'] : []
+            'data_class' => OrderData::class, // Указываем класс данных
+            'services' => $this->params ? (require $this->params->get('dictionaries'))['services'] : [],
         ]);
     }
 }
